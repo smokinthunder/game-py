@@ -1,4 +1,3 @@
-
 import os
 import random
 import math
@@ -13,7 +12,13 @@ WIDTH, HEIGHT = 1000, 800
 FPS = 60
 PLAYER_VEL = 5
 
+# Define life_value as a global variable
+global life_value
+life_value = 100
+
 window = pygame.display.set_mode((WIDTH, HEIGHT))
+
+bullet_img = pygame.image.load(join("assets","Weapon" ,"bullet.png"))
 
 
 def flip(sprites):
@@ -86,7 +91,10 @@ class Player(pygame.sprite.Sprite):
         self.rect.y += dy
 
     def make_hit(self):
+        global life_value
         self.hit = True
+        if life_value > 0:
+            life_value -= 1
 
     def move_left(self, vel):
         self.x_vel = -vel
@@ -117,6 +125,12 @@ class Player(pygame.sprite.Sprite):
         self.fall_count = 0
         self.y_vel = 0
         self.jump_count = 0
+
+    def range_attack(self, enemy):
+        direction  = 1
+        window.blit(bullet_img, (16, 10))
+    
+
 
     def hit_head(self):
         self.count = 0
@@ -385,9 +399,21 @@ def handle_move(player, objects):
         if obj and obj.name == "fire":
             player.make_hit()
 
+def game_over_text():
+    over_font = pygame.font.Font('freesansbold.ttf', 64)
+    over_text = over_font.render("GAME OVER", True, (255, 255, 255))
+    window.blit(over_text, (WIDTH/2 - over_text.get_width()/2, HEIGHT/2 - over_text.get_height()/2))
+    pygame.display.update()
+    keys = pygame.key.get_pressed()
+    if any(keys):  # Check if any key is pressed
+        return  # Disable controls by returning early
+
+    pygame.time.delay(5000)  # Wait for 5 seconds
+    pygame.quit()  # Quit the game
+    exit()  # Exit the program
 
 def main(window):
-    
+    global life_value
     life_value = 100
     font = pygame.font.Font('freesansbold.ttf', 32)
 
@@ -412,14 +438,17 @@ def main(window):
     while run:
         clock.tick(FPS)
         score = font.render("Life : " + str(life_value), True, (255, 255, 255))
-        window.blit(score, (10, 10))
 
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
                 break
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_c:
+                    player.range_attack(enemy)  
 
+            
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and player.jump_count < 2:
                     player.jump()
@@ -432,7 +461,13 @@ def main(window):
         enemy.loop(FPS)
         handle_move(player, objects)
         enemy_action(enemy, player, objects)
-        draw(window, background, bg_image, player, objects, offset_x,enemy)
+        draw(window, background, bg_image, player, objects, offset_x, enemy)
+        window.blit(score, (10, 10))
+        pygame.display.update()
+
+        if life_value <= 0:
+            game_over_text()
+
 
         if ((player.rect.right - offset_x >= WIDTH - scroll_area_width) and player.x_vel > 0) or (
                 (player.rect.left - offset_x <= scroll_area_width) and player.x_vel < 0):
