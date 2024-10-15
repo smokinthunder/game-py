@@ -9,8 +9,9 @@ mixer.init()
 pygame.init()
 
 
-SCREEN_WIDTH = 800
+SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = int(SCREEN_WIDTH * 0.8)
+# SCREEN_HEIGHT = 1080
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Shooter')
@@ -29,7 +30,7 @@ TILE_TYPES = 21
 MAX_LEVELS = 3
 screen_scroll = 0
 bg_scroll = 0
-level = 3
+level = 1
 start_game = False
 start_intro = False
 
@@ -61,12 +62,13 @@ exit_img = pygame.image.load('img/exit_btn.png').convert_alpha()
 restart_img = pygame.image.load('img/restart_btn.png').convert_alpha()
 #background
 
-no_of_layers = len(os.listdir(f'img/background/{level}'))
 bg_imgs = []
+no_of_layers = len(os.listdir(f'img/background/{level}'))
 for i in range(no_of_layers):
 
 	img = pygame.image.load(f'img/background/{level}/{i}.png').convert_alpha()
-	img = pygame.transform.scale(img, (img.get_width() * (SCREEN_HEIGHT/img.get_height()), SCREEN_HEIGHT))
+	if level >  1:
+		img = pygame.transform.scale(img, (img.get_width() * (SCREEN_HEIGHT/img.get_height()), SCREEN_HEIGHT))
 
 	bg_imgs.append(img)
 
@@ -127,9 +129,6 @@ def draw_bg():
 	else:
 		for x in range(5):
 			for bg_img in bg_imgs:
-				if bg_img == bg_imgs[0]:
-					screen.blit(bg_img, (x * width - bg_scroll * ((5 + bg_imgs.index(bg_img)) * 0.1), 0))
-				else:
 					screen.blit(bg_img, (x * width - bg_scroll * ((5 + bg_imgs.index(bg_img)) * 0.1), 0))
 
 
@@ -183,7 +182,7 @@ class Soldier(pygame.sprite.Sprite):
 		self.idling_counter = 0
 		
 		#load all images for the players
-		animation_types = ['Idle', 'Run', 'Jump', 'Death']
+		animation_types = ['Idle', 'Run', 'Jump', 'Death','Attack']
 		for animation in animation_types:
 			#reset temporary list of images
 			temp_list = []
@@ -760,7 +759,10 @@ while run:
 		#update player actions
 		if player.alive:
 			#shoot bullets
+
 			if shoot:
+				# print("Shoot")
+				player.update_action(4)#4: attack
 				player.shoot()
 			#throw grenades
 			elif grenade and grenade_thrown == False and player.grenades > 0:
@@ -774,6 +776,8 @@ while run:
 				player.update_action(2)#2: jump
 			elif moving_left or moving_right:
 				player.update_action(1)#1: run
+			elif shoot:
+				player.update_action(4)
 			else:
 				player.update_action(0)#0: idle
 			screen_scroll, level_complete = player.move(moving_left, moving_right)
@@ -782,6 +786,22 @@ while run:
 			if level_complete:
 				start_intro = True
 				level += 1
+
+				bg_imgs = []
+				no_of_layers = len(os.listdir(f'img/background/{level}'))
+				for i in range(no_of_layers):
+
+					img = pygame.image.load(f'img/background/{level}/{i}.png').convert_alpha()
+					if level >  1:
+						img = pygame.transform.scale(img, (img.get_width() * (SCREEN_HEIGHT/img.get_height()), SCREEN_HEIGHT))
+
+					bg_imgs.append(img) 
+
+
+		
+
+
+
 				bg_scroll = 0
 				world_data = reset_level()
 				if level <= MAX_LEVELS:
@@ -822,6 +842,7 @@ while run:
 			if event.key == pygame.K_d:
 				moving_right = True
 			if event.key == pygame.K_SPACE:
+				# player.update_action(4)#4: attack
 				shoot = True
 			if event.key == pygame.K_q:
 				grenade = True
