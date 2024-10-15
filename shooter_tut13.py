@@ -29,7 +29,7 @@ TILE_TYPES = 21
 MAX_LEVELS = 3
 screen_scroll = 0
 bg_scroll = 0
-level = 1
+level = 3
 start_game = False
 start_intro = False
 
@@ -60,18 +60,32 @@ start_img = pygame.image.load('img/start_btn.png').convert_alpha()
 exit_img = pygame.image.load('img/exit_btn.png').convert_alpha()
 restart_img = pygame.image.load('img/restart_btn.png').convert_alpha()
 #background
-pine1_img = pygame.image.load('img/Background/pine1.png').convert_alpha()
-pine2_img = pygame.image.load('img/Background/pine2.png').convert_alpha()
-mountain_img = pygame.image.load('img/Background/mountain.png').convert_alpha()
-sky_img = pygame.image.load('img/Background/sky_cloud.png').convert_alpha()
+
+no_of_layers = len(os.listdir(f'img/background/{level}'))
+bg_imgs = []
+for i in range(no_of_layers):
+
+	img = pygame.image.load(f'img/background/{level}/{i}.png').convert_alpha()
+	img = pygame.transform.scale(img, (img.get_width() * (SCREEN_HEIGHT/img.get_height()), SCREEN_HEIGHT))
+
+	bg_imgs.append(img)
+
+
+# pine1_img = pygame.image.load('img/background/pine1.png').convert_alpha()
+# pine2_img = pygame.image.load('img/background/pine2.png').convert_alpha()
+# mountain_img = pygame.image.load('img/background/mountain.png').convert_alpha()
+# sky_img = pygame.image.load('img/background/sky_cloud.png').convert_alpha()
+
+
 #store tiles in a list
 img_list = []
 for x in range(TILE_TYPES):
-	img = pygame.image.load(f'img/Tile/{x}.png')
+	img = pygame.image.load(f'img/tile/{x}.png')
 	img = pygame.transform.scale(img, (TILE_SIZE, TILE_SIZE))
 	img_list.append(img)
 #bullet
 bullet_img = pygame.image.load('img/icons/bullet.png').convert_alpha()
+# arrow_img = pygame.image.load('img/icons/grenade.png').convert_alpha()
 #grenade
 grenade_img = pygame.image.load('img/icons/grenade.png').convert_alpha()
 #pick up boxes
@@ -103,12 +117,20 @@ def draw_text(text, font, text_col, x, y):
 
 def draw_bg():
 	screen.fill(BG)
-	width = sky_img.get_width()
-	for x in range(5):
-		screen.blit(sky_img, ((x * width) - bg_scroll * 0.5, 0))
-		screen.blit(mountain_img, ((x * width) - bg_scroll * 0.6, SCREEN_HEIGHT - mountain_img.get_height() - 300))
-		screen.blit(pine1_img, ((x * width) - bg_scroll * 0.7, SCREEN_HEIGHT - pine1_img.get_height() - 150))
-		screen.blit(pine2_img, ((x * width) - bg_scroll * 0.8, SCREEN_HEIGHT - pine2_img.get_height()))
+	width = bg_imgs[0].get_width()
+	if level == 1:
+		for x in range(5):
+			screen.blit(bg_imgs[0], ((x * width) - bg_scroll * 0.5, 0))
+			screen.blit(bg_imgs[1], ((x * width) - bg_scroll * 0.6, SCREEN_HEIGHT - bg_imgs[1].get_height() - 300))
+			screen.blit(bg_imgs[2], ((x * width) - bg_scroll * 0.7, SCREEN_HEIGHT - bg_imgs[2].get_height() - 150))
+			screen.blit(bg_imgs[3], ((x * width) - bg_scroll * 0.8, SCREEN_HEIGHT - bg_imgs[3].get_height()))
+	else:
+		for x in range(5):
+			for bg_img in bg_imgs:
+				if bg_img == bg_imgs[0]:
+					screen.blit(bg_img, (x * width - bg_scroll * ((5 + bg_imgs.index(bg_img)) * 0.1), 0))
+				else:
+					screen.blit(bg_img, (x * width - bg_scroll * ((5 + bg_imgs.index(bg_img)) * 0.1), 0))
 
 
 #function to reset level
@@ -206,7 +228,7 @@ class Soldier(pygame.sprite.Sprite):
 
 		#jump
 		if self.jump == True and self.in_air == False:
-			self.vel_y = -11
+			self.vel_y = -18
 			self.jump = False
 			self.in_air = True
 
