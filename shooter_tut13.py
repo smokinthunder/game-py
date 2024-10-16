@@ -11,7 +11,6 @@ pygame.init()
 
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = int(SCREEN_WIDTH * 0.8)
-# SCREEN_HEIGHT = 1080
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Lost Kingdom')
@@ -80,6 +79,7 @@ for x in range(TILE_TYPES):
 	img_list.append(img)
 #bullet
 bullet_img = pygame.image.load('img/icons/bullet.png').convert_alpha()
+fireball_img = pygame.image.load('img/icons/fireball.png').convert_alpha()
 # arrow_img = pygame.image.load('img/icons/grenade.png').convert_alpha()
 #grenade
 grenade_img = pygame.image.load('img/icons/grenade.png').convert_alpha()
@@ -220,7 +220,12 @@ class Soldier(pygame.sprite.Sprite):
 
 		#jump
 		if self.jump == True and self.in_air == False:
-			self.vel_y = -18
+			if level == 1 :
+				self.vel_y = -18
+			elif level == 3:
+				self.vel_y = -24
+			else:
+				self.vel_y = -12
 			self.jump = False
 			self.in_air = True
 
@@ -516,7 +521,7 @@ class Bullet(pygame.sprite.Sprite):
 	def __init__(self, x, y, direction):
 		pygame.sprite.Sprite.__init__(self)
 		self.speed = 10
-		self.image = bullet_img
+		self.image = fireball_img
 		self.rect = self.image.get_rect()
 		self.rect.center = (x, y)
 		self.direction = direction
@@ -533,6 +538,10 @@ class Bullet(pygame.sprite.Sprite):
 				self.kill()
 
 		#check collision with characters
+		# if pygame.sprite.spritecollide(player, bullet_group, False) and level == 3:
+		# 	if player.alive:
+		# 		print("You Won")
+		# 		screen.blit(font.render("You Won", True, WHITE), (SCREEN_WIDTH- 100, SCREEN_HEIGHT - 100))
 		if pygame.sprite.spritecollide(player, bullet_group, False):
 			if player.alive:
 				player.health -= 5
@@ -764,6 +773,10 @@ while run:
 		#update player actions
 		if player.alive:
 			#shoot bullets
+			# if player.rect.x > 750  and level == 3:
+			# 	print("You Won")
+			# 	screen.blit(fireball_img, (SCREEN_WIDTH- 100, SCREEN_HEIGHT - 100))
+
 
 			if shoot:
 				# print("Shoot")
@@ -842,34 +855,34 @@ while run:
 			run = False
 		#keyboard presses
 		if event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_a:
+			if event.key == pygame.K_LEFT or event.key == pygame.K_a:
 				moving_left = True
-			if event.key == pygame.K_d:
+			if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
 				moving_right = True
 			if event.key == pygame.K_SPACE:
 				# player.update_action(4)#4: attack
 				shoot = True
 			if event.key == pygame.K_q:
 				grenade = True
-			if event.key == pygame.K_w and player.alive:
+			if event.key == pygame.K_UP or event.key == pygame.K_w	 and player.alive:
 				player.jump = True
 				jump_fx.play()
 			if event.key == pygame.K_ESCAPE:
 				run = False
 
 
+
 		#keyboard button released
 		if event.type == pygame.KEYUP:
-			if event.key == pygame.K_a:
+			if event.key == pygame.K_LEFT or event.key == pygame.K_a:
 				moving_left = False
-			if event.key == pygame.K_d:
+			if event.key == pygame.K_RIGHT or event.key == pygame.K_d:
 				moving_right = False
 			if event.key == pygame.K_SPACE:
 				shoot = False
 			if event.key == pygame.K_q:
 				grenade = False
 				grenade_thrown = False
-
 
 	pygame.display.update()
 
