@@ -14,7 +14,7 @@ SCREEN_HEIGHT = int(SCREEN_WIDTH * 0.8)
 # SCREEN_HEIGHT = 1080
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption('Shooter')
+pygame.display.set_caption('Lost Kingdom')
 
 #set framerate
 clock = pygame.time.Clock()
@@ -44,7 +44,7 @@ grenade_thrown = False
 
 
 #load music and sounds
-pygame.mixer.music.load('audio/music2.mp3')
+pygame.mixer.music.load('audio/music.mp3')
 pygame.mixer.music.set_volume(0.3)
 pygame.mixer.music.play(-1, 0.0, 5000)
 jump_fx = pygame.mixer.Sound('audio/jump.wav')
@@ -71,13 +71,6 @@ for i in range(no_of_layers):
 		img = pygame.transform.scale(img, (img.get_width() * (SCREEN_HEIGHT/img.get_height()), SCREEN_HEIGHT))
 
 	bg_imgs.append(img)
-
-
-# pine1_img = pygame.image.load('img/background/pine1.png').convert_alpha()
-# pine2_img = pygame.image.load('img/background/pine2.png').convert_alpha()
-# mountain_img = pygame.image.load('img/background/mountain.png').convert_alpha()
-# sky_img = pygame.image.load('img/background/sky_cloud.png').convert_alpha()
-
 
 #store tiles in a list
 img_list = []
@@ -312,9 +305,21 @@ class Soldier(pygame.sprite.Sprite):
 			#check if the ai in near the player
 			if self.vision.colliderect(player.rect):
 				#stop running and face the player
+				# Face the direction of the player
+				if self.rect.centerx < player.rect.centerx:
+					self.direction = 1
+					self.flip = False
+				else:
+					self.direction = -1
+					self.flip = True
 				self.update_action(0)#0: idle
 				#shoot
 				self.shoot()
+				self.update_action(4)#4: attack
+				# if self.rect.x < player.rect.x:
+				# 	self.direction = 1
+				# else:
+					# self.direction = -1
 			else:
 				if self.idling == False:
 					if self.direction == 1:
