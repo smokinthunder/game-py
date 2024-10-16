@@ -29,7 +29,7 @@ TILE_TYPES = 21
 MAX_LEVELS = 3
 screen_scroll = 0
 bg_scroll = 0
-level = 1
+level = 2
 start_game = False
 start_intro = False
 
@@ -225,7 +225,7 @@ class Soldier(pygame.sprite.Sprite):
 			elif level == 3:
 				self.vel_y = -24
 			else:
-				self.vel_y = -12
+				self.vel_y = -18
 			self.jump = False
 			self.in_air = True
 
